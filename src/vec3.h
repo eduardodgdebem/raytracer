@@ -1,6 +1,7 @@
 #pragma once
 #include <cmath>
 #include <ostream>
+
 class vec3 {
 public:
   double e[3];
