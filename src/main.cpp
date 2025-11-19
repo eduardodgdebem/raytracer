@@ -1,8 +1,10 @@
+#include "bvh.h"
 #include "camera.h"
+#include "hittable.h"
 #include "hittable_list.h"
+#include "material.h"
 #include "rt_common.h"
 #include "sphere.h"
-#include "vec3.h"
 
 int main() {
   hittable_list world;
@@ -10,7 +12,7 @@ int main() {
   auto ground_material = make_shared<lambertian>(color(0.5, 0.5, 0.5));
   world.add(make_shared<sphere>(point3(0, -1000, 0), 1000, ground_material));
 
-  int range = 1;
+  int range = 5;
   for (int a = -range; a < range; a++) {
     for (int b = -range; b < range; b++) {
       auto choose_mat = random_double();
@@ -49,11 +51,13 @@ int main() {
   auto material3 = make_shared<metal>(color(0.7, 0.6, 0.5), 0.0);
   world.add(make_shared<sphere>(point3(4, 1, 0), 1.0, material3));
 
+  world = hittable_list(make_shared<bvh_node>(world));
+
   camera cam;
 
   cam.aspect_ratio = 16.0 / 9.0;
-  cam.image_width = 400;
-  cam.samples_per_pixel = 20;
+  cam.image_width = 1200;
+  cam.samples_per_pixel = 10;
   cam.max_depth = 20;
 
   cam.vfov = 20;
