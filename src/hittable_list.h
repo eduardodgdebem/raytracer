@@ -28,7 +28,7 @@ public:
     for (const auto &object : objects) {
       if (object->hit(r, interval(ray_t.min, closest_so_far), temp_rec)) {
         hit_anything = true;
-        closest_so_far = temp_rec.t;
+        closest_so_far = temp_rec.time;
         rec = temp_rec;
       }
     }

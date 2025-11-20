@@ -3,14 +3,19 @@
 #include "hittable.h"
 #include "hittable_list.h"
 #include "material.h"
+#include "perlin.h"
 #include "rt_common.h"
 #include "sphere.h"
+#include "texture.h"
+#include "vec3.h"
 
-int main() {
+void bouncing_spheres() {
   hittable_list world;
 
-  auto ground_material = make_shared<lambertian>(color(0.5, 0.5, 0.5));
-  world.add(make_shared<sphere>(point3(0, -1000, 0), 1000, ground_material));
+  auto checker =
+      make_shared<checker_texture>(0.32, color(.3, .3, .1), color(.9, .9, .9));
+  world.add(make_shared<sphere>(point3(0, -1000, 0), 1000,
+                                make_shared<lambertian>(checker)));
 
   int range = 5;
   for (int a = -range; a < range; a++) {
@@ -70,3 +75,111 @@ int main() {
 
   cam.render(world);
 }
+
+void checkered_spheres() {
+  hittable_list world;
+
+  auto checker =
+      make_shared<checker_texture>(0.32, color(.2, .3, .1), color(.9, .9, .9));
+
+  world.add(make_shared<sphere>(point3(0, -10, 0), 10,
+                                make_shared<lambertian>(checker)));
+  world.add(make_shared<sphere>(point3(0, 10, 0), 10,
+                                make_shared<lambertian>(checker)));
+
+  camera cam;
+
+  cam.aspect_ratio = 16.0 / 9.0;
+  cam.image_width = 400;
+  cam.samples_per_pixel = 100;
+  cam.max_depth = 50;
+
+  cam.vfov = 20;
+  cam.lookfrom = point3(13, 2, 3);
+  cam.lookat = point3(0, 0, 0);
+  cam.vup = vec3(0, 1, 0);
+
+  cam.defocus_angle = 0;
+
+  cam.render(world);
+}
+
+void earth() {
+  auto earth_texture = make_shared<image_texture>("earthmap.jpg");
+  auto earth_surface = make_shared<lambertian>(earth_texture);
+  auto globe = make_shared<sphere>(point3(0, 0, 0), 2, earth_surface);
+
+  camera cam;
+
+  cam.aspect_ratio = 16.0 / 9.0;
+  cam.image_width = 400;
+  cam.samples_per_pixel = 100;
+  cam.max_depth = 50;
+
+  cam.vfov = 20;
+  cam.lookfrom = point3(0, 0, 12);
+  cam.lookat = point3(0, 0, 0);
+  cam.vup = vec3(0, 1, 0);
+
+  cam.defocus_angle = 0;
+
+  cam.render(hittable_list(globe));
+}
+
+void random_scene() {
+  auto world = hittable_list();
+  auto random_texture =
+      make_shared<checker_texture>(0.32, color(.0, .0, .0), color(.1, .1, .1));
+
+  world.add(make_shared<sphere>(point3(0, -1000, 0), 1000,
+                                make_shared<lambertian>(random_texture)));
+
+  world.add(make_shared<sphere>(point3(0, 1, .0), 1.0,
+                                make_shared<lambertian>(random_texture)));
+
+  world = hittable_list(make_shared<bvh_node>(world));
+
+  camera cam;
+
+  cam.aspect_ratio = 16.0 / 9.0;
+  cam.image_width = 1200;
+  cam.samples_per_pixel = 10;
+  cam.max_depth = 20;
+
+  cam.vfov = 20;
+  cam.lookfrom = point3(13, 2, 3);
+  cam.lookat = point3(0, 0, 0);
+  cam.vup = vec3(0, 1, 0);
+
+  cam.render(world);
+};
+
+void perlin_spheres() {
+  hittable_list world;
+
+  auto pertext = make_shared<noise_texture>(4);
+  world.add(make_shared<sphere>(point3(0, -1000, 0), 1000,
+                                make_shared<lambertian>(pertext)));
+  world.add(make_shared<sphere>(point3(0, 2, 0), 2,
+                                make_shared<lambertian>(pertext)));
+
+  world = hittable_list(make_shared<bvh_node>(world));
+
+  camera cam;
+
+  cam.aspect_ratio = 16.0 / 9.0;
+  cam.image_width = 400;
+  cam.samples_per_pixel = 100;
+  cam.max_depth = 50;
+
+  cam.vfov = 25;
+  cam.lookfrom = point3(13, 6, 3);
+  cam.lookat = point3(0, 1.5, 0);
+  cam.vup = vec3(0, 1, 0);
+
+  cam.defocus_angle = 0;
+
+  cam.render(world);
+}
+
+int main() { perlin_spheres(); }

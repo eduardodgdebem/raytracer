@@ -55,8 +55,8 @@ public:
       return false;
 
     bool hit_left = left->hit(r, ray_t, rec);
-    bool hit_right =
-        right->hit(r, interval(ray_t.min, hit_left ? rec.t : ray_t.max), rec);
+    bool hit_right = right->hit(
+        r, interval(ray_t.min, hit_left ? rec.time : ray_t.max), rec);
 
     return hit_left || hit_right;
   }
